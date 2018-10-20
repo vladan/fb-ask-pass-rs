@@ -9,6 +9,7 @@ homepage = "https://github.com/gdamjan/luks-fb"
 [dependencies]
 framebuffer = "0.1"
 bmp = "0.1"
+rpassword = "2.0.0"
 
 [profile.release]
 opt-level = 's'

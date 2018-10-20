@@ -1,20 +1,19 @@
-// this demo reads the firmware image and its offset from the bgrt acpi table and shows it in the same place
-
 extern crate bmp;
 extern crate framebuffer;
+extern crate rpassword;
 
 use framebuffer::{Framebuffer, KdMode};
-use std::fs::File;
-use std::io::prelude::*;
-use std::io;
+use std::fs::{File};
+use std::io::{Read};
 
-fn read_u32_from_file(fname: &str) -> io::Result<u32> {
+
+fn read_u32_from_file(fname: &str) -> std::io::Result<u32> {
     let mut f = File::open(fname)?;
     let mut buffer = String::new();
     f.read_to_string(&mut buffer)?;
 
     buffer.trim().parse::<u32>()
-        .map_err(|_| io::Error::new(io::ErrorKind::Other, "can't parse number"))
+        .map_err(|_| std::io::Error::new(std::io::ErrorKind::Other, "can't parse number"))
 }
 
 fn main() -> std::io::Result<()> {
@@ -42,12 +41,11 @@ fn main() -> std::io::Result<()> {
 
     let _ = framebuffer.write_frame(&frame);
 
-    let mut buffer = String::new();
-    io::stdin().read_to_string(&mut buffer)?;
+    let pass = rpassword::read_password().unwrap();
 
     // Reenable text mode in current tty
     let _ = Framebuffer::set_kd_mode(KdMode::Text).unwrap();
 
-    println!("{}", buffer);
+    println!("Your password is {}", pass);
     Ok(())
 }
