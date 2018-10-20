@@ -1,0 +1,16 @@
+[package]
+name = "fb-ask-pass"
+version = "0.1.0"
+authors = ["Damjan Georgievski <gdamjan@gmail.com>"]
+license = "GPL-3.0"
+readme = "README.md"
+homepage = "https://github.com/gdamjan/luks-fb"
+
+[dependencies]
+framebuffer = "0.1"
+bmp = "0.1"
+
+[profile.release]
+opt-level = 's'
+lto = true
+panic = 'abort'
