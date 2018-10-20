@@ -1,0 +1,40 @@
+language: rust
+rust: stable
+sudo: false
+
+env:
+  global:
+    - PROJECT_NAME=fb-ask-pass
+    - TARGET=x86_64-unknown-linux-gnu
+
+script:
+  - cargo build ${TRAVIS_TAG:+--release} --target $TARGET
+  - cargo test  ${TRAVIS_TAG:+--release} --target $TARGET
+
+before_deploy:
+  - strip target/$TARGET/release/$PROJECT_NAME
+  - zip "$PROJECT_NAME-$TRAVIS_TAG-$TARGET.zip" -j target/$TARGET/release/$PROJECT_NAME
+
+deploy:
+  provider: releases
+  api_key: $GIT_TOKEN
+  file_glob: true
+  file: ${PROJECT_NAME}-${TRAVIS_TAG}-${TARGET}*
+  # don't delete the artifacts from previous phases
+  skip_cleanup: true
+  overwrite: true
+  # deploy when a new tag is pushed
+  on:
+    # channel to use to produce the release artifacts
+    condition: $TRAVIS_RUST_VERSION = stable
+    tags: true
+
+# Need to cache the whole `.cargo` directory to keep .crates.toml for
+# cargo-update to work
+cache:
+  directories:
+    - /home/travis/.cargo
+
+# But don't cache the cargo registry
+before_cache:
+  - rm -rf /home/travis/.cargo/registry
