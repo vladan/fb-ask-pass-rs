@@ -1,0 +1,18 @@
+#!/bin/bash
+
+build() {
+    add_binary "fb-ask-pass"
+    add_runscript
+}
+
+help() {
+    cat <<-HELPEOF
+		This hook will enable a program that asks for the LUKS passphrase while
+		showing the firmware (bios/uefi) image on the framebuffer. Best used with the
+		fastboot option to i915 (or similar).
+
+		The hook doesn't check that you actually have LUKS, so in that case just don't add it.
+	HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:

@@ -1,0 +1,30 @@
+pkgname=fb-ask-pass
+_gitname=fb-ask-pass-rs
+pkgver=r1
+pkgrel=1
+pkgdesc="framebuffer passphrase prompt for LUKS"
+url="https://github.com/gdamjan/fb-ask-pass-rs"
+depends=()
+makedepends=('cargo')
+arch=('x86_64')
+license=('GPL-3.0')
+source=("git+https://github.com/gdamjan/fb-ask-pass-rs.git")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "${srcdir}/${_gitname}"
+  printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+  cd "${srcdir}/${_gitname}"
+  cargo build --release
+}
+
+package() {
+  cd "${srcdir}/${_gitname}"
+  install -Dm755 target/release/fb-ask-pass "$pkgdir/usr/bin/fb-ask-pass"
+  install -Dm644 arch/initcpio.hook "$pkgdir/usr/lib/initcpio/hooks/fb-ask-pass"
+  install -Dm644 arch/initcpio.install "$pkgdir/usr/lib/initcpio/install/fb-ask-pass"
+}
+

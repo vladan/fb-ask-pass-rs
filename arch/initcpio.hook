@@ -1,0 +1,10 @@
+#!/usr/bin/ash
+
+run_hook() {
+    ckeyfile="/crypto_keyfile.bin"
+    acpibgrt="/sys/firmware/acpi/bgrt"
+
+    if [ ! -f "${ckeyfile}" -a -d "${acpibgrt}" ]; then
+        fb-ask-pass --write "$ckeyfile"
+    fi
+}
