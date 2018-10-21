@@ -1,7 +1,7 @@
 extern crate bmp;
 extern crate framebuffer;
 
-pub mod passwd;
+mod passwd;
 
 use framebuffer::{Framebuffer, KdMode};
 use std::env;
