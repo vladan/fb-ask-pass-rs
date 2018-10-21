@@ -1,11 +1,11 @@
 extern crate bmp;
 extern crate framebuffer;
-extern crate rpassword;
+
+pub mod passwd;
 
 use framebuffer::{Framebuffer, KdMode};
 use std::env;
-use std::io;
-use std::io::{Read, Write};
+use std::io::{self, Read, Write};
 use std::fs::{File};
 
 
@@ -58,7 +58,8 @@ fn main() -> io::Result<()> {
 
     let _ = framebuffer.write_frame(&frame);
 
-    let pass = rpassword::read_password()?;
+    let feedback = || { io::stdout().write(b"."); io::stdout().flush(); };
+    let pass = passwd::read_pass(&feedback)?;
 
     // Don't reenable text mode in current tty, let X handle it afterwards
     // let _ = Framebuffer::set_kd_mode(KdMode::Text).unwrap();
