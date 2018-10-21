@@ -3,6 +3,12 @@
 
 Primary usage: run in the initramfs (on my archlinux) to ask for the LUKS passphrase, while showing the firmware picture.
 
+see also: https://wiki.archlinux.org/index.php/silent_boot
+
+the kernel parameters I use are:
+`quiet udev.log_priority=3 loglevel=3 vt.global_cursor_default=0 i915.fastboot=1`
+
+
 # FAQ
 
 ## Why Rust?
@@ -18,8 +24,8 @@ Primary usage: run in the initramfs (on my archlinux) to ask for the LUKS passph
   - afaik, UEFI needs to be enabled. probably quick boot, and full resolution booting too.
 - then waits for the user to enter its password, and writes it to a file (for ex. it can write to
   `/crypto_keyfile.bin` which on archlinux is used by default by the `encrypt` initcpio hook). for debug purposes, and when used without any argument, the password is printed on stdout.
-- enabling the `fastboot` option on `i915` is recommended.
 - look in `arch/` to see how to integrate with archlinux's initcpio system.
+
 
 ## Why not plymouth
 

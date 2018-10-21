@@ -9,7 +9,7 @@ help() {
     cat <<-HELPEOF
 		This hook will enable a program that asks for the LUKS passphrase while
 		showing the firmware (bios/uefi) image on the framebuffer. Best used with the
-		fastboot option to i915 (or similar).
+		fastboot option to i915 (or similar). Place it before the encrypt hook.
 
 		The hook doesn't check that you actually have LUKS, so in that case just don't add it.
 	HELPEOF
