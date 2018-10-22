@@ -58,14 +58,15 @@ fn main() -> io::Result<()> {
 
     let _ = framebuffer.write_frame(&frame);
 
-    let feedback = || { io::stdout().write(b"."); io::stdout().flush(); };
+    let feedback = || { };
     let pass = passwd::read_pass(&feedback)?;
 
-    // Don't reenable text mode in current tty, let X handle it afterwards
-    // let _ = Framebuffer::set_kd_mode(KdMode::Text).unwrap();
-
     match write_to {
-        None => println!("You entered: {}", pass),
+        None => {
+            // for testing, get back to text mode
+            let _ = Framebuffer::set_kd_mode(KdMode::Text).unwrap();
+            println!("You entered: {}", pass);
+        },
         Some(fname) => {
             let mut f = File::create(fname)?;
             f.write(pass.as_bytes())?;
