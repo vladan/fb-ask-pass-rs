@@ -1,12 +1,25 @@
 [![Build Status](https://travis-ci.org/gdamjan/fb-ask-pass-rs.svg?branch=master)](https://travis-ci.org/gdamjan/fb-ask-pass-rs)
 
 
-Primary usage: run in the initramfs (on my archlinux) to ask for the LUKS passphrase, while showing the firmware picture.
+Primary usage: run it from a initcpio hook (on archlinux) to ask for the LUKS passphrase, while showing the firmware picture.
+The passphrase is saved in a file (`/crypto_keyfile.bin`) which the `encrypt` hook uses to unlock LUKS volumes.
 
-see also: https://wiki.archlinux.org/index.php/silent_boot
-
-the kernel parameters I use are:
+The kernel parameters I use are:
 `quiet udev.log_priority=3 loglevel=3 vt.global_cursor_default=0 i915.fastboot=1`
+
+
+For testing, in a console you can just run:
+
+```
+sudo chown `id -u` /dev/fb0
+cargo run
+```
+
+and it'll show whatever you type on the terminal. It won't work in X11 or wayland.
+
+see also:
+- [Arch wiki page for silent boot](https://wiki.archlinux.org/index.php/silent_boot)
+- [Kernel documentation about the /sys/firmware/acpi/bgrt interface](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/ABI/testing/sysfs-firmware-acpi)
 
 
 # FAQ
@@ -22,8 +35,7 @@ the kernel parameters I use are:
 - the program reads the firmware image provided by ACPI 5.0 from `/sys/firmware/acpi/bgrt/*` and displays it on the
   framebuffer at the same position (`xoffset`, `yoffset`).
   - afaik, UEFI needs to be enabled. probably quick boot, and full resolution booting too.
-- then waits for the user to enter its password, and writes it to a file (for ex. it can write to
-  `/crypto_keyfile.bin` which on archlinux is used by default by the `encrypt` initcpio hook). for debug purposes, and when used without any argument, the password is printed on stdout.
+- then waits for the user to enter its password, and writes it to a file.
 - look in `arch/` to see how to integrate with archlinux's initcpio system.
 
 
