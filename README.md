@@ -4,9 +4,18 @@
 Primary usage: run it from a initcpio hook (on archlinux) to ask for the LUKS passphrase, while showing the firmware picture.
 The passphrase is saved in a file (`/crypto_keyfile.bin`) which the `encrypt` hook uses to unlock LUKS volumes.
 
-The kernel parameters I use are:
-`quiet udev.log_priority=3 loglevel=3 vt.global_cursor_default=0 i915.fastboot=1`
 
+The kernel parameters I use are:
+
+```
+quiet udev.log_priority=3 loglevel=3 vt.global_cursor_default=0 i915.fastboot=1`
+```
+
+Arch initcpio configuration (`/etc/mkinitcpio.conf`):
+
+```
+HOOKS=(base udev autodetect block fb-ask-pass encrypt filesystems)
+```
 
 For testing, in a console you can just run:
 
