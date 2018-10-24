@@ -2,9 +2,9 @@ extern crate bmp;
 extern crate framebuffer;
 
 mod passwd;
+mod cli;
 
 use framebuffer::{Framebuffer, KdMode};
-use std::env;
 use std::io::{self, Read, Write};
 use std::fs::{File};
 
@@ -19,20 +19,9 @@ fn read_u32_from_file(fname: &str) -> io::Result<u32> {
 }
 
 
-fn parse_args(args: &[String]) -> Result<Option<String>, &'static str> {
-    match args.len() {
-        3 => {
-            if &args[1] == "--write" { Ok(Some(args[2].clone())) }
-            else { Err("only allowed 1st argument is --write") }
-        },
-        1 => Ok(None),
-        _ => Err("only 0 or 2 arguments are allowed")
-    }
-}
-
 fn main() -> io::Result<()> {
-    let args: Vec<String> = env::args().collect();
-    let write_to = parse_args(&args).unwrap();
+
+    let write_to = cli::parse_args().unwrap();
 
     let img = bmp::open("/sys/firmware/acpi/bgrt/image").unwrap();
     let xoffset = read_u32_from_file("/sys/firmware/acpi/bgrt/xoffset")?;
