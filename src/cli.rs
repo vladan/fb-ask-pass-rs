@@ -1,13 +1,43 @@
 use std::env;
+use std::io;
 
-pub fn parse_args() -> Result<Option<String>, &'static str> {
-    let args: Vec<String> = env::args().collect();
-    match args.len() {
-        3 => {
-            if &args[1] == "--write" { Ok(Some(args[2].clone())) }
-            else { Err("only allowed 1st argument is --write") }
+pub enum Action {
+    Test,
+    Systemd,
+    WriteToFile(String),
+    None,
+}
+
+pub struct Config {
+    pub action: Action,
+    logo_image: Option<String>,
+    logo_x_offset: u32,
+    logo_y_offset: u32,
+}
+
+pub fn parse_args() -> io::Result<Config> {
+    let mut args = env::args();
+    let _command = args.next();
+
+    let action = args.next().map(|s| s); //.as_str().clone());
+    let action = match action {
+        Some("--test") => Action::Test,
+        Some("--systemd") => Action::Systemd,
+        Some("--write") => {
+            let fname = args.next();
+            if let Some(fname) = fname {
+                Action::WriteToFile(fname)
+            } else {
+                Action::None
+            }
         },
-        1 => Ok(None),
-        _ => Err("only 0 or 2 arguments are allowed")
-    }
+        _ => Action::None
+    };
+
+
+    Err(io::Error::new(io::ErrorKind::Other, "--write requires a filename"))
+}
+
+fn parse_options(args: env::Args) -> io::Result<()> {
+    Ok(())
 }

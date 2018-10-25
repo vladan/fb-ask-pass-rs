@@ -21,7 +21,7 @@ fn read_u32_from_file(fname: &str) -> io::Result<u32> {
 
 fn main() -> io::Result<()> {
 
-    let write_to = cli::parse_args().unwrap();
+    let config = cli::parse_args().unwrap();
 
     let img = bmp::open("/sys/firmware/acpi/bgrt/image").unwrap();
     let xoffset = read_u32_from_file("/sys/firmware/acpi/bgrt/xoffset")?;
@@ -50,16 +50,17 @@ fn main() -> io::Result<()> {
     let feedback = || { };
     let pass = passwd::read_pass(&feedback)?;
 
-    match write_to {
-        None => {
+    match config.action {
+        cli::Action::Test => {
             // for testing, get back to text mode
             let _ = Framebuffer::set_kd_mode(KdMode::Text).unwrap();
             println!("You entered: {}", pass);
         },
-        Some(fname) => {
+        cli::Action::WriteToFile(fname) => {
             let mut f = File::create(fname)?;
             f.write(pass.as_bytes())?;
-        }
+        },
+        _ => ()
     }
 
     Ok(())
