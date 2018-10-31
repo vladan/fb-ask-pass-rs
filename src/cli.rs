@@ -1,6 +1,23 @@
 use std::env;
 use std::io;
 
+pub fn usage() -> &'static str {
+r#"
+Usage:
+
+Commands:
+  --test            Run in test mode, exit graphics mode and show the entered text on console
+  --write <FILE>    Write passphrase to FILE
+  --systemd         Run as systemd password agent
+
+Options:
+  --fb <DEVICE>     Framebuffer device [default /dev/fb0]
+  --image <FILE>    Image to display [default /sys/firmware/acpi/bgrt/image]
+  --offset <X Y>       Offset for --image
+
+"#
+}
+
 pub enum Action {
     Test,
     Systemd,
@@ -10,17 +27,25 @@ pub enum Action {
 
 pub struct Config {
     pub action: Action,
-    logo_image: Option<String>,
-    logo_x_offset: u32,
-    logo_y_offset: u32,
+    framebuffer: String,
+    logo_image: String,
+    logo_offset: (u32, u32),
 }
 
 pub fn parse_args() -> io::Result<Config> {
     let mut args = env::args();
     let _command = args.next();
 
-    let action = args.next().map(|s| s); //.as_str().clone());
-    let action = match action {
+
+    let action = parse_action(&mut args);
+    let options = parse_options(args);
+    Err(io::Error::new(io::ErrorKind::Other, usage()))
+}
+
+fn parse_action(args: &mut env::Args) -> Action {
+    let mut action_opt = args.next();
+    let action_str = action_opt.as_ref().map(|s| s.as_str());
+    match action_str {
         Some("--test") => Action::Test,
         Some("--systemd") => Action::Systemd,
         Some("--write") => {
@@ -31,11 +56,9 @@ pub fn parse_args() -> io::Result<Config> {
                 Action::None
             }
         },
-        _ => Action::None
-    };
-
-
-    Err(io::Error::new(io::ErrorKind::Other, "--write requires a filename"))
+        Some(_) => Action::None,
+        None => Action::None
+    }
 }
 
 fn parse_options(args: env::Args) -> io::Result<()> {
