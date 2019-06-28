@@ -30,14 +30,14 @@ SOFTWARE.
 extern crate libc;
 extern crate termios;
 
-use std::os::unix::io::AsRawFd;
-use std::io;
 use std::fs;
+use std::fs::File;
+use std::io::{self, Write};
+use std::os::unix::io::AsRawFd;
 use std::str;
 
-
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
-enum Key {
+pub enum Key {
     Unknown,
     ArrowLeft,
     ArrowRight,
@@ -98,24 +98,52 @@ fn read_single_key(fd: i32) -> io::Result<Key> {
     rv
 }
 
-pub fn read_pass(feedback: &Fn()) -> io::Result<String> {
+pub fn read_pass<F>(feedback: F) -> io::Result<String>
+where
+    F: Fn(Key) -> (),
+{
     let tty_f = fs::File::open("/dev/tty")?;
     let fd = tty_f.as_raw_fd();
 
     let mut termios = termios::Termios::from_fd(fd)?;
-    let original = termios.clone();
+    let original = termios; // copy done here
     termios::cfmakeraw(&mut termios);
     termios::tcsetattr(fd, termios::TCSADRAIN, &termios)?;
 
     let mut pass = String::new();
     let rv = loop {
-        match read_single_key(fd)? {
-            Key::Char(c) => { pass.push(c); feedback(); },
+        let key = read_single_key(fd)?;
+        feedback(key);
+
+        match key {
+            Key::Char(c) => {
+                pass.push(c);
+            }
+            Key::Escape => {
+                pass.clear();
+            }
             Key::Enter => break Ok(pass),
-            _ => ()
+            _ => continue,
         }
     };
 
     termios::tcsetattr(fd, termios::TCSADRAIN, &original)?;
     rv
+}
+
+pub fn validate_pass(pass: String) -> io::Result<String> {
+    Ok(pass)
+}
+
+pub fn write_pass(write_to: Option<String>, pass: String) {
+    match write_to {
+        None => {
+            // for testing, get back to text mode
+            println!("You entered: {}", pass);
+        }
+        Some(fname) => {
+            let mut f = File::create(fname).unwrap();
+            f.write_all(pass.as_bytes()).unwrap();
+        }
+    }
 }
