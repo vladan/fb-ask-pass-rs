@@ -31,8 +31,8 @@ impl Frame {
         }
     }
 
-    pub fn draw_image(&mut self, path: &str) {
-        let img = bmp::open(path).unwrap();
+    pub fn draw_image(&mut self, path: String) {
+        let img = bmp::open(path.as_ref()).unwrap();
         for (x, y) in img.coordinates() {
             let px = img.get_pixel(x, y);
             let idx = (((y + self.yoffset) * self.width)

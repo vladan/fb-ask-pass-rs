@@ -10,34 +10,51 @@ use std::env;
 use std::fs::File;
 use std::io::{self, Write};
 
-fn parse_args(args: &[String]) -> Result<Option<String>, &'static str> {
-    match args.len() {
-        3 => {
-            if &args[1] == "--write" {
-                Ok(Some(args[2].clone()))
-            } else {
-                Err("only allowed 1st argument is --write")
-            }
+struct Config {
+    image_path: Option<String>,
+    pass_path: Option<String>,
+}
+
+fn parse_args(args: &[String]) -> Result<Config, &'static str> {
+    let config: Option<Config> = match args.iter().map(String::as_str).collect::<Vec<&str>>()[..] {
+        [_, "--image", img, "--write", path] | [_, "--write", path, "--image", img] => {
+            Some(Config {
+                image_path: Some(String::from(img)),
+                pass_path: Some(String::from(path)),
+            })
         }
-        1 => Ok(None),
-        _ => Err("only 0 or 2 arguments are allowed"),
-    }
+        [_, "--write", path] => Some(Config {
+            image_path: None,
+            pass_path: Some(String::from(path)),
+        }),
+        [_, "--image", img] => Some(Config {
+            image_path: Some(String::from(img)),
+            pass_path: None,
+        }),
+        [_] => Some(Config {
+            image_path: None,
+            pass_path: None,
+        }),
+        _ => None,
+    };
+    config.ok_or("Possible arguments are --write and --image.")
 }
 
 fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();
-    let write_to = parse_args(&args).unwrap();
+    let config = parse_args(&args).unwrap();
 
     let mut framebuffer = Framebuffer::new("/dev/fb0").unwrap();
 
     let mut frame = Frame::new(&framebuffer);
-    frame.draw_image("/sys/firmware/acpi/bgrt/image");
+    let default_image_path = String::from("/sys/firmware/acpi/bgrt/image");
+    frame.draw_image(config.image_path.unwrap_or(default_image_path));
     framebuffer.write_frame(frame.buffer.as_slice());
 
     let feedback = || {};
     let pass = passwd::read_pass(&feedback)?;
 
-    match write_to {
+    match config.pass_path {
         None => {
             // for testing, get back to text mode
             let _ = Framebuffer::set_kd_mode(KdMode::Text).unwrap();
