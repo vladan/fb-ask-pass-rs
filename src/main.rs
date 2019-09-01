@@ -1,5 +1,6 @@
 mod drawing;
 mod passwd;
+mod cli;
 
 use crate::drawing::Frame;
 use framebuffer::{Framebuffer, KdMode};
@@ -7,39 +8,10 @@ use std::env;
 use std::fs::File;
 use std::io::{self, Write};
 
-struct Config {
-    image_path: Option<String>,
-    pass_path: Option<String>,
-}
-
-fn parse_args(args: &[String]) -> Result<Config, &'static str> {
-    let config: Option<Config> = match args.iter().map(String::as_str).collect::<Vec<&str>>()[..] {
-        [_, "--image", img, "--write", path] | [_, "--write", path, "--image", img] => {
-            Some(Config {
-                image_path: Some(String::from(img)),
-                pass_path: Some(String::from(path)),
-            })
-        }
-        [_, "--write", path] => Some(Config {
-            image_path: None,
-            pass_path: Some(String::from(path)),
-        }),
-        [_, "--image", img] => Some(Config {
-            image_path: Some(String::from(img)),
-            pass_path: None,
-        }),
-        [_] => Some(Config {
-            image_path: None,
-            pass_path: None,
-        }),
-        _ => None,
-    };
-    config.ok_or("Possible arguments are --write and --image.")
-}
 
 fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();
-    let config = parse_args(&args).unwrap();
+    let config = cli::parse_args(&args).unwrap();
 
     let mut framebuffer = Framebuffer::new("/dev/fb0").unwrap();
 
