@@ -14,10 +14,16 @@ fn main() -> io::Result<()> {
     let config = cli::parse_args(&args).unwrap();
 
     let mut framebuffer = Framebuffer::new("/dev/fb0").unwrap();
-
-    let mut frame = Frame::new(&framebuffer);
-    let default_image_path = String::from("/sys/firmware/acpi/bgrt/image");
-    frame.draw_image(config.image_path.unwrap_or(default_image_path));
+    let frame = match config.image_path {
+        None => {
+            drawing::frame_from_bgrt(&framebuffer)
+        }
+        Some(img_fname) => {
+            let mut frame = Frame::new(&framebuffer);
+            frame.draw_image(&img_fname);
+            frame
+        }
+    };
     framebuffer.write_frame(frame.buffer.as_slice());
 
     let feedback = || {};

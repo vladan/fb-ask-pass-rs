@@ -15,8 +15,8 @@ pub struct Frame {
 
 impl Frame {
     pub fn new(fb: &Framebuffer) -> Self {
-        let xoffset = read_u32_from_file("/sys/firmware/acpi/bgrt/xoffset").ok();
-        let yoffset = read_u32_from_file("/sys/firmware/acpi/bgrt/yoffset").ok();
+        let xoffset = None;
+        let yoffset = None;
         let width = fb.fix_screen_info.line_length;
         let height = fb.var_screen_info.yres;
         let bytes_per_pixel = fb.var_screen_info.bits_per_pixel / 8;
@@ -31,8 +31,8 @@ impl Frame {
         }
     }
 
-    pub fn draw_image(&mut self, path: String) {
-        let img = bmp::open(path.as_ref()).unwrap();
+    pub fn draw_image(&mut self, path: &str) {
+        let img = bmp::open(path).unwrap();
         let xoffset = self
             .xoffset
             .unwrap_or((self.width / self.bytes_per_pixel) / 2 - img.get_width() / 2);
@@ -50,6 +50,25 @@ impl Frame {
             self.buffer[idx + 2] = px.r;
         }
     }
+}
+
+pub fn frame_from_bgrt(fb: &Framebuffer) -> Frame {
+        let xoffset = read_u32_from_file("/sys/firmware/acpi/bgrt/xoffset").ok();
+        let yoffset = read_u32_from_file("/sys/firmware/acpi/bgrt/yoffset").ok();
+        let width = fb.fix_screen_info.line_length;
+        let height = fb.var_screen_info.yres;
+        let bytes_per_pixel = fb.var_screen_info.bits_per_pixel / 8;
+
+        let mut frame = Frame {
+            buffer: vec![0u8; (width * height) as usize],
+            xoffset,
+            yoffset,
+            width,
+            height,
+            bytes_per_pixel,
+        };
+        frame.draw_image("/sys/firmware/acpi/bgrt/image");
+        frame
 }
 
 fn read_u32_from_file(fname: &str) -> io::Result<u32> {
