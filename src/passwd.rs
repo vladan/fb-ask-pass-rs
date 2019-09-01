@@ -98,7 +98,7 @@ fn read_single_key(fd: i32) -> io::Result<Key> {
     rv
 }
 
-pub fn read_pass(feedback: &Fn()) -> io::Result<String> {
+pub fn read_pass(feedback: &dyn Fn()) -> io::Result<String> {
     let tty_f = fs::File::open("/dev/tty")?;
     let fd = tty_f.as_raw_fd();
 
