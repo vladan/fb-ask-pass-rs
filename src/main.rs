@@ -1,10 +1,7 @@
-extern crate bmp;
-extern crate framebuffer;
-
 mod drawing;
 mod passwd;
 
-use drawing::Frame;
+use crate::drawing::Frame;
 use framebuffer::{Framebuffer, KdMode};
 use std::env;
 use std::fs::File;

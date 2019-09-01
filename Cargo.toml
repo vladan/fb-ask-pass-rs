@@ -5,6 +5,7 @@ authors = ["Damjan Georgievski <gdamjan@gmail.com>"]
 license = "GPL-3.0"
 readme = "README.md"
 homepage = "https://github.com/gdamjan/luks-fb"
+edition = "2018"
 
 [dependencies]
 framebuffer = "0.1"
