@@ -25,7 +25,7 @@ impl Frame {
         }
     }
 
-    fn draw_any_image(&mut self, path: &str, xoffset: Option<u32>, yoffset: Option<u32>) {
+    fn draw_image(&mut self, path: &str, xoffset: Option<u32>, yoffset: Option<u32>) {
         let img = bmp::open(path).unwrap();
         let xof = xoffset.unwrap_or((self.width / self.bytes_per_pixel) / 2 - img.get_width() / 2);
         let yof = yoffset.unwrap_or(self.height / 2 - img.get_height() / 2);
@@ -40,16 +40,6 @@ impl Frame {
             self.buffer[idx + 2] = px.r;
         }
     }
-
-    pub fn draw_image(&mut self, path: &str) {
-        self.draw_any_image(path, None, None);
-    }
-
-    pub fn draw_bgrt_image(&mut self) {
-        let xoffset = read_u32_from_file("/sys/firmware/acpi/bgrt/xoffset").ok();
-        let yoffset = read_u32_from_file("/sys/firmware/acpi/bgrt/yoffset").ok();
-        self.draw_any_image("/sys/firmware/acpi/bgrt/image", xoffset, yoffset);
-    }
 }
 
 fn read_u32_from_file(fname: &str) -> io::Result<u32> {
@@ -61,4 +51,19 @@ fn read_u32_from_file(fname: &str) -> io::Result<u32> {
         .trim()
         .parse::<u32>()
         .map_err(|_| io::Error::new(io::ErrorKind::Other, "can't parse number"))
+}
+
+pub fn init(device: String, image_path: String, load_bgrt: bool) {
+    let mut framebuffer = Framebuffer::new(device).unwrap();
+    let mut frame = Frame::new(&framebuffer);
+    let (xoffset, yoffset) = if load_bgrt {
+        (
+            read_u32_from_file("/sys/firmware/acpi/bgrt/xoffset").ok(),
+            read_u32_from_file("/sys/firmware/acpi/bgrt/yoffset").ok(),
+        )
+    } else {
+        (None, None)
+    };
+    frame.draw_image(&image_path, xoffset, yoffset);
+    framebuffer.write_frame(frame.buffer.as_slice());
 }

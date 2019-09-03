@@ -2,24 +2,14 @@ mod cli;
 mod drawing;
 mod passwd;
 
-use crate::drawing::Frame;
 use framebuffer::{Framebuffer, KdMode};
-use std::env;
 use std::fs::File;
 use std::io::{self, Write};
 
 fn main() -> io::Result<()> {
-    let args: Vec<String> = env::args().collect();
-    let config = cli::parse_args(&args).unwrap();
+    let config = cli::get_config().unwrap();
 
-    let mut framebuffer = Framebuffer::new("/dev/fb0").unwrap();
-    let mut frame = Frame::new(&framebuffer);
-
-    match config.image_path {
-        Some(fname) => frame.draw_image(&fname),
-        None => frame.draw_bgrt_image(),
-    }
-    framebuffer.write_frame(frame.buffer.as_slice());
+    drawing::init(config.device, config.image_path, config.load_bgrt);
 
     let feedback = || {};
     let pass = passwd::read_pass(&feedback)?;
