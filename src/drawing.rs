@@ -55,7 +55,7 @@ fn read_u32_from_file(fname: &str) -> io::Result<u32> {
         .map_err(|_| io::Error::new(io::ErrorKind::Other, "can't parse number"))
 }
 
-pub fn draw_image(device: String, image_path: String) {
+pub fn draw_image_centered(device: String, image_path: String) {
     let mut framebuffer = Framebuffer::new(device).unwrap();
     let frame = Frame::from_image(&framebuffer, &image_path, None, None);
     framebuffer.write_frame(frame.buffer.as_slice());

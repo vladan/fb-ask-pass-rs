@@ -11,7 +11,7 @@ fn main() -> io::Result<()> {
 
     match config.image_path {
         None => drawing::draw_bgrt(config.device),
-        Some(image_path) => drawing::draw_image(config.device, image_path)
+        Some(image_path) => drawing::draw_image_centered(config.device, image_path)
     }
 
 
