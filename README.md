@@ -28,8 +28,6 @@ and it'll show whatever you type on the terminal. It won't work in X11 or waylan
 
 see also:
 - [Arch wiki page for silent boot](https://wiki.archlinux.org/index.php/silent_boot)
-- [Kernel documentation about the /sys/firmware/acpi/bgrt interface](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/ABI/testing/sysfs-firmware-acpi)
-
 
 # FAQ
 
@@ -47,8 +45,13 @@ see also:
 - then waits for the user to enter its password, and writes it to a file.
 - look in `arch/` to see how to integrate with archlinux's initcpio system.
 
+## What is BGRT?
 
-## Why not plymouth
+the TL;DR; it's the image/logo that the BIOS shows when powering up the PC. The ACPI 5.0 standard
+allows access to the image by OS. Please read the [kernel documentation about the /sys/firmware/acpi/bgrt interface](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/ABI/testing/sysfs-firmware-acpi).
+
+
+## Why not plymouth?
 
 - Yes, [Plymouth](https://www.freedesktop.org/wiki/Software/Plymouth/) is probably the better solution. It has much
   more features and is much better tested.
