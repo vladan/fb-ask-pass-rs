@@ -2,10 +2,9 @@ extern crate clap;
 use clap::{App, Arg};
 
 pub struct Config {
-    pub image_path: String,
+    pub image_path: Option<String>,
     pub pass_path: Option<String>,
     pub device: String,
-    pub load_bgrt: bool,
 }
 
 pub fn get_config() -> Result<Config, &'static str> {
@@ -15,7 +14,7 @@ pub fn get_config() -> Result<Config, &'static str> {
                 .short("w")
                 .long("write")
                 .value_name("FB_WRITE_TO")
-                .help("Path to the file the password is stored in. If not provided the password will be printed on screen.")
+                .help("Filename to write the password to. Defaults to showing the password on screen.")
                 .required(false)
                 .takes_value(true),
         )
@@ -24,8 +23,7 @@ pub fn get_config() -> Result<Config, &'static str> {
                 .short("i")
                 .long("image")
                 .value_name("FB_IMAGE")
-                .help("The displayed image path.")
-                .default_value("/sys/firmware/acpi/bgrt/image")
+                .help("The displayed image filename. Defaults to showing the BGRT image.")
                 .required(false)
                 .takes_value(true),
         )
@@ -42,9 +40,8 @@ pub fn get_config() -> Result<Config, &'static str> {
         .get_matches();
 
     Ok(Config {
-        image_path: matches.value_of("image").map(String::from).unwrap(),
+        image_path: matches.value_of("image").map(String::from),
         pass_path: matches.value_of("write").map(String::from),
         device: matches.value_of("device").map(String::from).unwrap(),
-        load_bgrt: (matches.occurrences_of("image") == 0),
     })
 }

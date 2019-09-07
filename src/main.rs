@@ -9,7 +9,11 @@ use std::io::{self, Write};
 fn main() -> io::Result<()> {
     let config = cli::get_config().unwrap();
 
-    drawing::init(config.device, config.image_path, config.load_bgrt);
+    match config.image_path {
+        None => drawing::draw_bgrt(config.device),
+        Some(image_path) => drawing::draw_image(config.device, image_path)
+    }
+
 
     let feedback = || {};
     let pass = passwd::read_pass(&feedback)?;
