@@ -27,14 +27,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-extern crate libc;
-extern crate termios;
-
-use std::os::unix::io::AsRawFd;
-use std::io;
 use std::fs;
+use std::io;
+use std::os::unix::io::AsRawFd;
 use std::str;
-
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 enum Key {
@@ -77,10 +73,7 @@ fn read_single_key(fd: i32) -> io::Result<Key> {
         if read < 0 {
             Err(io::Error::last_os_error())
         } else if buf[0] == b'\x03' {
-            Err(io::Error::new(
-                io::ErrorKind::Interrupted,
-                "read interrupted",
-            ))
+            Err(io::Error::new(io::ErrorKind::Interrupted, "read interrupted"))
         } else {
             Ok(key_from_escape_codes(&buf[..read as usize]))
         }
@@ -110,9 +103,12 @@ pub fn read_pass(feedback: &dyn Fn()) -> io::Result<String> {
     let mut pass = String::new();
     let rv = loop {
         match read_single_key(fd)? {
-            Key::Char(c) => { pass.push(c); feedback(); },
+            Key::Char(c) => {
+                pass.push(c);
+                feedback();
+            }
             Key::Enter => break Ok(pass),
-            _ => ()
+            _ => (),
         }
     };
 

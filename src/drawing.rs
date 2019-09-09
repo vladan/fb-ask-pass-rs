@@ -1,5 +1,3 @@
-extern crate framebuffer;
-
 use framebuffer::{Framebuffer, KdMode};
 use std::fs::File;
 use std::io::{self, Read};
