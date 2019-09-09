@@ -1,6 +1,6 @@
 [package]
 name = "fb-ask-pass"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Damjan Georgievski <gdamjan@gmail.com>"]
 license = "GPL-3.0"
 readme = "README.md"
