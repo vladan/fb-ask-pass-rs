@@ -5,7 +5,7 @@ use std::fs::File;
 use std::io::{self, Read};
 
 pub struct Frame {
-    pub buffer: Vec<u8>,
+    buffer: Vec<u8>,
     width: u32,
     height: u32,
     bytes_per_pixel: u32,
@@ -42,6 +42,10 @@ impl Frame {
         }
         frame
     }
+
+    pub fn draw(self: &Self, fb: &mut Framebuffer) {
+        fb.write_frame(self.buffer.as_slice());
+    }
 }
 
 fn read_u32_from_file(fname: &str) -> io::Result<u32> {
@@ -58,7 +62,7 @@ fn read_u32_from_file(fname: &str) -> io::Result<u32> {
 pub fn draw_image_centered(device: String, image_path: String) {
     let mut framebuffer = Framebuffer::new(device).unwrap();
     let frame = Frame::from_image(&framebuffer, &image_path, None, None);
-    framebuffer.write_frame(frame.buffer.as_slice());
+    frame.draw(&mut framebuffer);
 }
 
 pub fn draw_bgrt(device: String) {
@@ -66,5 +70,5 @@ pub fn draw_bgrt(device: String) {
     let xoffset = read_u32_from_file("/sys/firmware/acpi/bgrt/xoffset").ok();
     let yoffset = read_u32_from_file("/sys/firmware/acpi/bgrt/yoffset").ok();
     let frame = Frame::from_image(&framebuffer,"/sys/firmware/acpi/bgrt/image", xoffset, yoffset);
-    framebuffer.write_frame(frame.buffer.as_slice());
+    frame.draw(&mut framebuffer);
 }
