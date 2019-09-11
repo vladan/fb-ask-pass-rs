@@ -1,3 +1,4 @@
+use crate::passwd::Key;
 use framebuffer::{Framebuffer, KdMode};
 use std::fs::File;
 use std::io::{self, Read};
@@ -76,6 +77,7 @@ fn draw_bgrt(device: String) {
 pub enum Msg {
     Start(String, Option<String>),
     Stop,
+    Keypress(Key),
 }
 
 fn start(device: String, image_path: Option<String>) {
@@ -89,6 +91,19 @@ fn stop() {
     Framebuffer::set_kd_mode(KdMode::Text).unwrap();
 }
 
+fn draw_pass_enter() {}
+fn draw_pass_char() {}
+fn draw_pass_escape() {}
+
+fn draw_keypress(key: Key) {
+    match key {
+        Key::Enter => draw_pass_enter(),
+        Key::Char(_) => draw_pass_char(),
+        Key::Escape => draw_pass_escape(),
+        _ => (),
+    }
+}
+
 pub fn init() -> impl Fn(Msg) -> () {
     let (tx, rx) = mpsc::channel::<Msg>();
 
@@ -96,6 +111,7 @@ pub fn init() -> impl Fn(Msg) -> () {
         match rx.recv().unwrap() {
             Msg::Start(device, image_path) => start(device, image_path),
             Msg::Stop => stop(),
+            Msg::Keypress(k) => draw_keypress(k),
         }
     });
 
