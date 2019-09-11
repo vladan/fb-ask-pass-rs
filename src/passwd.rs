@@ -106,10 +106,10 @@ where
     let mut pass = String::new();
     let rv = loop {
         let key = read_single_key(fd)?;
+        feedback(key);
         match key {
             Key::Char(c) => {
                 pass.push(c);
-                feedback(key);
             }
             Key::Enter => break Ok(pass),
             _ => (),
